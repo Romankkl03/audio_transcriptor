@@ -1,4 +1,5 @@
 from datetime import datetime
+from typing import Dict
 
 
 class BalanceTransaction:
@@ -13,9 +14,17 @@ class BalanceTransaction:
         self._user_id = user_id
         self._amount = amount
         self._timestamp = datetime.utcnow()
+        self._status = "Success" # or "Failed"
 
     def get_amount(self) -> float:
         return self._amount
 
     def get_user_id(self) -> int:
         return self._user_id
+
+    def get_transaction_status(self) -> str:
+        return self._status
+
+    def get_transaction_history(self) -> Dict:
+        """Get user's transaction history sorted by timestamp"""
+        return None

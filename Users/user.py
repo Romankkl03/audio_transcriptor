@@ -23,25 +23,6 @@ class User:
     
     def get_password(self) -> str:
         return self._password
-
-    def get_balance(self) -> float:
-        return self._balance
-    
-    def set_balance(self) -> None:
-        return self._balance
-    
-    def decrease_balance(self, amount: float) -> None:
-        """Decrease the user's balance by the specified amount.
-        Args:
-            amount (float): The amount to decrease from the balance.
-        """
-        if amount > self._balance:
-            raise ValueError("Недостаточно кредитов.")
-        self._balance -= amount
-    
-    def increase_balance(self, amount: float) -> None:
-        """Increase the user's balance by the specified amount."""
-        self._balance += amount
     
     def check_password(self, password: str) -> bool:
         """Check if the provided password matches the user's password.
