@@ -21,7 +21,7 @@ class Balance(Base):
     __tablename__ = "balances"
     id = Column(Integer, primary_key=True)
     user_id = Column(Integer, ForeignKey("users.id"), unique=True)
-    amount = Column(Numeric(10, 2), default=0.00)
+    amount = Column(Integer, default=0)
 
     user = relationship("User", back_populates="balance")
 

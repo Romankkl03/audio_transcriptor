@@ -22,7 +22,7 @@ def init_db():
     session.add(user)
     session.flush()
 
-    session.add(Balance(user_id=user.id, credits=100))
+    session.add(Balance(user_id=user.id, amount=100))
 
     session.add(
         Transaction(
@@ -34,13 +34,13 @@ def init_db():
 
     admin = User(
         email="admin@admin.com",
-        assword="admin123",
+        password="admin123",
         role="admin",
     )
     session.add(admin)
     session.flush()
 
-    session.add(Balance(user_id=admin.id, credits=9999))
+    session.add(Balance(user_id=admin.id, amount=9999))
 
     session.add(
         Transaction(
