@@ -1,5 +1,5 @@
 from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm import sessionmaker, Session
 
 from .config import get_settings
 
@@ -32,5 +32,9 @@ SessionLocal = sessionmaker(
 )
 
 
-def get_session():
-    return SessionLocal()
+def get_session() -> Session:
+    session = SessionLocal()
+    try:
+        yield session
+    finally:
+        session.close()
