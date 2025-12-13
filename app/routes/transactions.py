@@ -1,4 +1,5 @@
-from fastapi import APIRouter, HTTPException
+from fastapi import APIRouter, HTTPException, Depends
+from sqlalchemy.orm import Session
 from src.DataBase.engine import get_session
 from src.Balance.transaction import TransactionRepository
 from .pydantic_models import Transaction_api
@@ -6,9 +7,9 @@ from .pydantic_models import Transaction_api
 transaction_rout = APIRouter()
 
 
-@transaction_rout.post("/{user_id}/create_transaction")
-def create_transaction(data: Transaction_api):
-    session = get_session()
+@transaction_rout.post("/{user_id}/new_transactions")
+def create_transaction(data: Transaction_api,
+                       session: Session = Depends(get_session)):
     repo = TransactionRepository(session)
     try:
         transaction = repo.create_transaction(
@@ -26,9 +27,9 @@ def create_transaction(data: Transaction_api):
         raise HTTPException(status_code=500, detail="Error creating transaction")
 
 
-@transaction_rout.get("/{user_id}/history")
-def get_transaction_history(user_id: int):
-    session = get_session()
+@transaction_rout.get("/{user_id}/transactions_history")
+def get_transaction_history(user_id: int,
+                            session: Session = Depends(get_session)):
     repo = TransactionRepository(session)
     try:
         transactions = repo.get_all_by_user_id(user_id)

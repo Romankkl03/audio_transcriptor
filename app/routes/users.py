@@ -1,5 +1,6 @@
-from fastapi import APIRouter, HTTPException, status
+from fastapi import APIRouter, HTTPException, status, Depends
 from src.DataBase.engine import get_session
+from sqlalchemy.orm import Session
 from .pydantic_models import User_api as User
 from src.Users.user_repo import UserRepository
 from typing import Dict, List
@@ -12,10 +13,10 @@ user_route = APIRouter()
 
 
 @user_route.post(
-    '/signup',
+    '/registration',
     description="Register a new user with email and password")
-def register_user(data: User) -> Dict[str, int | str]:
-    session = get_session()
+def register_user(data: User,
+            session: Session = Depends(get_session)) -> Dict[str, int | str]:
     repo = UserRepository(session)
     existing = repo.get_by_email(data.email)
     try:
@@ -36,9 +37,9 @@ def register_user(data: User) -> Dict[str, int | str]:
         )
 
 
-@user_route.post('/signin')
-def login(data: User) -> Dict[str, str | int]:
-    session = get_session()
+@user_route.post('/auntification', description="Authenticate user and return user ID")
+def login(data: User,
+          session: Session = Depends(get_session)) -> Dict[str, str | int]:
     repo = UserRepository(session)
 
     user = repo.get_by_email(data.email)
@@ -54,16 +55,16 @@ def login(data: User) -> Dict[str, str | int]:
 
 
 @user_route.get('/service')
-def get_all_users() -> Dict[str, List[Dict[str, int | str]]]:
-    session = get_session()
+def get_all_users(session: Session = Depends(get_session)
+                  ) -> Dict[str, List[Dict[str, int | str]]]:
     repo = UserRepository(session)
     users = repo.get_all_users()
     return users
 
 
 @user_route.post('/{user_id}/delete')
-def delete_user(user_id: int) -> Dict[str, str]:
-    session = get_session()
+def delete_user(user_id: int,
+                session: Session = Depends(get_session)) -> Dict[str, str]:
     repo = UserRepository(session)
     try:
         repo.delete_user(user_id)
@@ -74,33 +75,3 @@ def delete_user(user_id: int) -> Dict[str, str]:
             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
             detail="Error deleting user"
         )
-
-
-# @user_route.get(
-#     "/get_all_users", 
-#     response_model=List[User],
-#     summary="Get all users",
-#     response_description="List of all users"
-# )
-# async def get_all_users(session=Depends(get_session)) -> List[User]:
-#     """
-#     Get list of all users.
-
-#     Args:
-#         session: Database session
-
-#     Returns:
-#         List[UserResponse]: List of users
-#     """
-#     try:
-#         repo = UserRepository(session)
-#         users = repo.get_all_users()
-#         users = UserService.get_all_users(session)
-#         logger.info(f"Retrieved {len(users)} users")
-#         return users
-#     except Exception as e:
-#         logger.error(f"Error retrieving users: {str(e)}")
-#         raise HTTPException(
-#             status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-#             detail="Error retrieving users"
-#         )
