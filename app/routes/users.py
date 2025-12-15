@@ -62,7 +62,7 @@ def get_all_users(session: Session = Depends(get_session)
     return users
 
 
-@user_route.post('/{user_id}/delete')
+@user_route.post('/{user_id}/deletion')
 def delete_user(user_id: int,
                 session: Session = Depends(get_session)) -> Dict[str, str]:
     repo = UserRepository(session)

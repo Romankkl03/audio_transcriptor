@@ -1,19 +1,24 @@
-FROM python:3.12-slim
+FROM python:3.11-slim
+
+RUN apt-get update && apt-get install -y \
+    ffmpeg \
+    git \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
 
 WORKDIR /app
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq-dev gcc build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
-COPY requirements.txt /app/
-
-RUN pip install --upgrade pip \
-    && pip install -r /app/requirements.txt
+RUN pip install --upgrade pip
+RUN pip install torch --index-url https://download.pytorch.org/whl/cpu
+COPY requirements.txt .
+RUN pip install -r requirements.txt
+RUN pip install openai-whisper
+RUN python - <<EOF
+import whisper
+whisper.load_model("tiny")
+EOF
 
 COPY . /app
 
 EXPOSE 8000
-
 CMD ["uvicorn", "api:app", "--host", "0.0.0.0", "--port", "8000"]
-# CMD ["python", "api.py"]
