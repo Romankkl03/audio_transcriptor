@@ -42,6 +42,16 @@ services:
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
     restart: on-failure
+  
+  worker:
+    build: ./app
+    command: python src/MLModels/whisper_model.py
+    depends_on:
+      - rabbitmq
+    volumes:
+      - ./app:/app
+    networks:
+      - ml_app_network
 
   database:
     image: postgres:15

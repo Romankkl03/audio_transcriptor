@@ -1,5 +1,4 @@
 from src.DataBase.models import AudioScript
-
 from sqlalchemy.orm import Session
 
 
@@ -26,3 +25,8 @@ class ThreadRepository:
     def get_all_audio_names_by_user_id(self, user_id: int):
         threads = self.session.query(AudioScript).filter(AudioScript.user_id == user_id).all()
         return [thread.audio_name for thread in threads]
+
+    def get_threads_by_user_id(self, user_id: int):
+        return (self.session.query(AudioScript)
+                .filter(AudioScript.user_id == user_id)
+                .all())

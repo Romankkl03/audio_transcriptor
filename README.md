@@ -10,10 +10,16 @@
 
 Создана и подключена ORM!
 
+В качестве модели взял whisper tiny на 39M параметров. Для того, чтобы все собралось, необходимо включить ВПН. Это нужно сделать только на стадии docker compose build, чтобы модель загрузилась. Затем отключаем впн и поднимаем контейнеры.
+
 <b>Запуск приложения</b>
 
 - docker compose build
 
 - docker compose up -d  
 
+- docker compose up -d --scale worker=2
+
 - Запуск тестового скрипта для базы данных: docker compose exec app python -m src.tests.db_test 
+
+- Тест для проверки работоспособности модели: в swagger в */api/transcribation/transcribation/{user_id}* подгружаем аудио (например app/test_audio/test_1.mp3), затем проверяем ответ в */api/thread/{user_id}/threads*.

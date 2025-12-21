@@ -2,30 +2,72 @@ from fastapi import APIRouter, HTTPException, Depends
 from sqlalchemy.orm import Session
 from src.DataBase.engine import get_session
 from src.Thread.thread import ThreadRepository
+from src.Balance.balance import BalanceRepository
 from .pydantic_models import Thread_api as thread
 
 thread_rout = APIRouter()
 
+@thread_rout.post("/{user_id}/predictions")
+def save_transcription(
+    data: thread,
+    session: Session = Depends(get_session)
+):
+    repo_preds = ThreadRepository(session)
+    repo_balance = BalanceRepository(session)
 
-@thread_rout.post("/{user_id}/new_threads")
-def create_thread(data: thread,
-                  session: Session = Depends(get_session)):
-    repo = ThreadRepository(session)
     try:
-        thread_repo = repo.create_thread(
+        cost = int(data.duration) * 10
+        if not repo_balance.has_enough(data.user_id, cost):
+            raise HTTPException(
+                status_code=402,
+                detail="Not enough balance"
+            )
+
+        thread_repo = repo_preds.create_thread(
             user_id=data.user_id,
             audio_name=data.audio_name,
             duration=data.duration,
             content=data.content
         )
+
+        repo_balance.decrease_balance(
+            user_id=data.user_id,
+            amount=cost
+        )
+        session.commit()
+
         return {
             "thread_id": thread_repo.id,
             "audio_name": thread_repo.audio_name,
             "duration": thread_repo.duration,
             "content": thread_repo.content
         }
+
+    except HTTPException:
+        session.rollback()
+        raise
     except Exception as e:
-        raise HTTPException(status_code=500, detail="Error creating thread")
+        session.rollback()
+        raise HTTPException(status_code=500, detail=str(e))
+
+
+@thread_rout.get("/{user_id}/threads")
+def get_threads(
+    user_id: int,
+    session: Session = Depends(get_session)
+):
+    repo = ThreadRepository(session)
+    threads = repo.get_threads_by_user_id(user_id)
+    return [
+        {
+            "id": t.id,
+            "audio_name": t.audio_name,
+            "duration": t.duration,
+            "content": t.content,
+            "created_at": t.created_at
+        }
+        for t in threads
+    ]
 
 
 @thread_rout.get("/{user_id}/audios")

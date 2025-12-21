@@ -33,3 +33,7 @@ class BalanceRepository:
         balance = self.session.query(Balance).filter(Balance.user_id == user_id).first()
         balance.amount += amount
         self.session.commit()
+    
+    def has_enough_credits(self, user_id: int, price: int):
+        balance = self.session.query(Balance).filter(Balance.user_id == user_id).first()
+        return price <= balance.amount
