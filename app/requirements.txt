@@ -39,3 +39,6 @@ typing-inspection==0.4.2 ; python_version >= "3.11"
 tzdata==2025.2 ; python_version >= "3.11" and sys_platform == "win32"
 urllib3==2.6.2 ; python_version >= "3.11"
 uvicorn==0.38.0 ; python_version >= "3.11"
+python-jose
+Jinja2
+passlib

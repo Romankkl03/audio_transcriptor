@@ -1,5 +1,6 @@
 from .engine import engine, get_session, SessionLocal
 from .models import Base, User, Balance, Transaction
+from src.auth.hash_password import HashPassword
 
 from logging import getLogger
 
@@ -12,10 +13,13 @@ def init_db():
         if session.query(User).first():
             logger.info("Database already initialized.")
             return
+        
+        hash_password = HashPassword()
+        hashed_password = hash_password.create_hash("user123")
 
         user = User(
             email="user@user.ru",
-            password="user123",
+            password=hashed_password,
             role="user",
         )
         session.add(user)
@@ -30,10 +34,10 @@ def init_db():
                 type="deposit"
             )
         )
-
+        hashed_password = hash_password.create_hash("admin123")
         admin = User(
             email="admin@admin.com",
-            password="admin123",
+            password=hashed_password,
             role="admin",
         )
         session.add(admin)

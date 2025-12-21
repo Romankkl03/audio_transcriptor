@@ -69,6 +69,21 @@ def get_threads(
         for t in threads
     ]
 
+@thread_rout.get("/{user_id}/{thread_id}")
+def get_current_thread(
+    user_id: int,
+    thread_id: int,
+    session: Session = Depends(get_session)
+):
+    repo = ThreadRepository(session)
+    threads = repo.get_thread_by_id(thread_id)
+    return {
+            "id": threads.id,
+            "audio_name": threads.audio_name,
+            "duration": threads.duration,
+            "content": threads.content,
+            "created_at": threads.created_at
+        }
 
 @thread_rout.get("/{user_id}/audios")
 def get_all_audio_names(user_id: int,

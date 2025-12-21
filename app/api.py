@@ -11,6 +11,8 @@ from routes.users import user_route
 from routes.thread import thread_rout
 from routes.transactions import transaction_rout
 from routes.audio_save import worker_rout
+from routes.auth import auth_route
+from routes.pages import pages_route
 
 logger = logging.getLogger(__name__)
 settings = get_settings()
@@ -39,6 +41,8 @@ def create_app() -> FastAPI:
     app.include_router(thread_rout, prefix="/api/thread", tags=["Prediction"])
     app.include_router(transaction_rout, prefix="/api/transactions", tags=["History"])
     app.include_router(worker_rout, prefix="/api/transcribation", tags=["Audio"])
+    app.include_router(auth_route, tags=['Auth'])
+    app.include_router(pages_route, tags=["Pages"])
     return app
 
 

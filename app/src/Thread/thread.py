@@ -30,3 +30,8 @@ class ThreadRepository:
         return (self.session.query(AudioScript)
                 .filter(AudioScript.user_id == user_id)
                 .all())
+    
+    def get_thread_by_id(self, thread_id: int):
+        return (self.session.query(AudioScript)
+                .filter(AudioScript.id == thread_id)
+                .first())

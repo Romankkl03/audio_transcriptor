@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Админка / Пользователь</title>
+</head>
+<body>
+<h2>Здравствуйте, {{ user.email }} ({{ user.role }})</h2>
+
+{% if user.role == "admin" %}
+<h3>Список всех пользователей</h3>
+<ul>
+    {% for u in users %}
+        <li>{{ u.email }} (ID: {{ u.id }})</li>
+    {% else %}
+        <li>Пользователей нет</li>
+    {% endfor %}
+</ul>
+{% endif %}
+
+<h3>История транзакций</h3>
+<ul>
+    {% for t in transactions %}
+        <li>
+            Пользователь ID: {{ t.user_id }}, Сумма: {{ t.amount }}, Тип: {{ t.type }}
+        </li>
+    {% else %}
+        <li>Транзакций нет</li>
+    {% endfor %}
+</ul>
+
+<br>
+<a href="/">Назад</a>
+</body>
+</html>

@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Главная</title>
+</head>
+<body>
+<h2>Здравствуйте, {{ user.email }}</h2>
+
+<p><strong>Баланс:</strong> <span id="balance">{{ balance }}</span></p>
+
+<form action="/balance" method="get">
+    <button type="submit">Пополнить баланс</button>
+</form>
+
+{% if user.role == "admin" %}
+<br>
+<a href="/admin">
+    <button>Сервис</button>
+</a>
+{% endif %}
+
+<hr>
+
+<h3>Загрузить аудио (mp3)</h3>
+
+<form action="/upload" method="post" enctype="multipart/form-data">
+    <input type="file" name="file" accept=".mp3" required>
+    <br><br>
+    <button type="submit">Транскрибировать</button>
+</form>
+
+<hr>
+
+<h3>Мои транскрипции</h3>
+
+<ul id="threads-list">
+    {% for t in threads %}
+        <li>
+            <a href="/thread/{{ user.id }}/{{ t.id }}">
+                {{ t.audio_name }} ({{ t.duration }} сек)
+            </a>
+        </li>
+    {% else %}
+        <li>Пока нет транскрипций</li>
+    {% endfor %}
+</ul>
+
+<br>
+<a href="/login">Выйти</a>
+
+<script>
+    const userId = {{ user.id }};
+    const list = document.getElementById("threads-list");
+    const balanceElement = document.getElementById("balance");
+
+    async function refreshThreads() {
+        try {
+            const response = await fetch(`/api/thread/${userId}/threads`);
+            if (!response.ok) return;
+
+            const threads = await response.json();
+
+            list.innerHTML = "";
+
+            if (threads.length === 0) {
+                list.innerHTML = "<li>Пока нет транскрипций</li>";
+                return;
+            }
+
+            threads.forEach(t => {
+                const li = document.createElement("li");
+                li.innerHTML = `
+                    <a href="/thread/${userId}/${t.id}">
+                        ${t.audio_name} (${Math.round(t.duration)} сек)
+                    </a>
+                `;
+                list.appendChild(li);
+            });
+
+        } catch (e) {
+            console.error("Ошибка обновления транскрипций", e);
+        }
+    }
+
+    async function refreshBalance() {
+        try {
+            const response = await fetch(`/api/balance/${userId}`);
+            if (!response.ok) return;
+
+            const data = await response.json();
+            balanceElement.textContent = data.balance;
+
+        } catch (e) {
+            console.error("Ошибка обновления баланса", e);
+        }
+    }
+
+    setInterval(refreshThreads, 3000);
+    setInterval(refreshBalance, 3000);
+</script>
+
+</body>
+</html>
