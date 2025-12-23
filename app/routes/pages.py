@@ -150,31 +150,36 @@ def balance_post(
 
     return RedirectResponse("/", status_code=302)
 
+
 @pages_route.get("/admin", response_class=HTMLResponse)
 def admin_page(
     request: Request,
-    email = Depends(authenticate_cookie),
+    email: str = Depends(authenticate_cookie),
     session: Session = Depends(get_session)
 ):
     user_repo = UserRepository(session)
     user = user_repo.get_by_email(email)
-    if not user:
-        return RedirectResponse("/login", status_code=302)
 
-    users = []
-    if user.role == "admin":
-        users = user_repo.get_all_users()["users"]
+    # Проверяем, что пользователь существует и является администратором
+    if not user or user.role != "admin":
+        return RedirectResponse("/", status_code=302)  # Перенаправляем на главную страницу
 
+    # Получаем всех пользователей (только для админа)
+    users_data = user_repo.get_all_users()
+    users = users_data["users"]
+
+    # Получаем все транзакции для всех пользователей (только для админа)
     transaction_repo = TransactionRepository(session)
-    if user.role == "admin":
-        transactions = []
-        for u in user_repo.get_all_users()["users"]:
-            trans = transaction_repo.get_all_by_user_id(u["id"])
-            for t in trans:
-                transactions.append({"transaction_id": t.id, "user_id": t.user_id, "amount": t.amount, "type": t.type})
-    else:
-        trans = transaction_repo.get_all_by_user_id(user.id)
-        transactions = [{"transaction_id": t.id, "user_id": t.user_id, "amount": t.amount, "type": t.type} for t in trans]
+    transactions = []
+    for u in users:
+        trans = transaction_repo.get_all_by_user_id(u["id"])
+        for t in trans:
+            transactions.append({
+                "transaction_id": t.id,
+                "user_id": t.user_id,
+                "amount": t.amount,
+                "type": t.type
+            })
 
     return templates.TemplateResponse(
         "admin.html",
@@ -185,3 +190,4 @@ def admin_page(
             "transactions": transactions
         }
     )
+

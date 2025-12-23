@@ -1,21 +1,47 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Пополнение баланса</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-<h2>Пополнение баланса</h2>
+{% block title %}Пополнение баланса{% endblock %}
 
-<form action="/balance" method="post">
-    <input type="number" name="amount" min="1" required>
-    <br><br>
-    <button type="submit">Пополнить</button>
-</form>
+{% block styles %}
+<style>
+    .balance-form {
+        max-width: 400px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 20px;
+    }
 
-<br>
-<a href="/">Назад</a>
+    .balance-form input {
+        width: 100%;
+        max-width: 100%;
+        box-sizing: border-box;
+    }
 
-</body>
-</html>
+    .balance-form button {
+        width: 100%;
+    }
+
+    .back-link {
+        text-align: center;
+        display: block;
+        margin-top: 15px;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="balance-form">
+        <h2>Пополнение баланса</h2>
+
+        <form action="/balance" method="post">
+            <input type="number" name="amount" min="1" placeholder="Сумма" required>
+            <br><br>
+            <button type="submit">Пополнить</button>
+        </form>
+
+        <a href="/" class="back-link">← Назад</a>
+    </div>
+</div>
+{% endblock %}
+

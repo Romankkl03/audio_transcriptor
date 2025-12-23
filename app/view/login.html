@@ -1,29 +1,47 @@
 {% extends "base.html" %}
-{% block title %}Login{% endblock %}
 
-{% block content %}
-<h2>Login</h2>
+{% block title %}Вход{% endblock %}
 
-<form method="post">
-    <input type="email" name="username" placeholder="Email" required>
-    <input type="password" name="password" placeholder="Password" required>
-    <button type="submit">Login</button>
-</form>
+{% block styles %}
+<style>
+    .login-form {
+        max-width: 400px;  
+        width: 100%;
+        margin: 0 auto;  
+        padding: 20px;
+    }
 
-<form action="/register" method="get">
-    <button type="submit">Регистрация</button>
-</form>
+    .login-form input {
+        width: 100%;  
+        max-width: 100%;  
+        box-sizing: border-box;  
+    }
 
-{% if errors %}
-    <div class="error">
-        {% for error in errors %}
-            <p>{{ error }}</p>
-        {% endfor %}
+    .login-form button {
+        width: 100%;   
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="login-form">
+        <h2>Вход</h2>
+
+        {% if errors %}
+            <p class="error">{{ errors[0] }}</p>
+        {% endif %}
+
+        <form method="post">
+            <input type="email" name="username" placeholder="Email" required>
+            <input type="password" name="password" placeholder="Пароль" required>
+            <button type="submit">Вход</button>
+        </form>
+
+        <br>
+        <div style="text-align: center;">
+            <a href="/register">Регистрация</a>
+        </div>
     </div>
-{% endif %}
-
-{% if msg %}
-    <p>{{ msg }}</p>
-{% endif %}
-
+</div>
 {% endblock %}

@@ -1,35 +1,86 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Админка / Пользователь</title>
-</head>
-<body>
-<h2>Здравствуйте, {{ user.email }} ({{ user.role }})</h2>
+{% extends "base.html" %}
 
-{% if user.role == "admin" %}
-<h3>Список всех пользователей</h3>
-<ul>
-    {% for u in users %}
-        <li>{{ u.email }} (ID: {{ u.id }})</li>
-    {% else %}
-        <li>Пользователей нет</li>
-    {% endfor %}
-</ul>
-{% endif %}
+{% block title %}Админка / Пользователь{% endblock %}
 
-<h3>История транзакций</h3>
-<ul>
-    {% for t in transactions %}
-        <li>
-            Пользователь ID: {{ t.user_id }}, Сумма: {{ t.amount }}, Тип: {{ t.type }}
-        </li>
-    {% else %}
-        <li>Транзакций нет</li>
-    {% endfor %}
-</ul>
+{% block styles %}
+<style>
+    .admin-container {
+        max-width: 1000px;
+        width: 100%;
+        margin: 0 auto;
+        padding: 20px;
+    }
 
-<br>
-<a href="/">Назад</a>
-</body>
-</html>
+    .user-list, .transaction-list {
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 5px;
+        margin-bottom: 20px;
+    }
+
+    .user-list li, .transaction-list li {
+        padding: 8px;
+        border-bottom: 1px solid #eee;
+    }
+
+    .user-list li:last-child, .transaction-list li:last-child {
+        border-bottom: none;
+    }
+
+    .transaction-item {
+        display: flex;
+        justify-content: space-between;
+    }
+
+    .transaction-item span {
+        margin-right: 15px;
+    }
+
+    .back-link {
+        display: inline-block;
+        margin-top: 20px;
+        color: #007BFF;
+        text-decoration: none;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="admin-container">
+        <h2>Здравствуйте, {{ user.email }} ({{ user.role }})</h2>
+
+        {% if user.role == "admin" %}
+        <h3>Список всех пользователей</h3>
+        <ul class="user-list">
+            {% for u in users %}
+                <li>ID: {{ u.id }} — {{ u.email }}</li>
+            {% else %}
+                <li>Пользователей нет</li>
+            {% endfor %}
+        </ul>
+
+        <h3>История транзакций</h3>
+        <ul class="transaction-list">
+            {% for t in transactions %}
+                <li class="transaction-item">
+                    <span>Пользователь ID: {{ t.user_id }}</span>
+                    <span>Сумма: {{ t.amount }}</span>
+                    <span>Тип: {{ t.type }}</span>
+                </li>
+            {% else %}
+                <li>Транзакций нет</li>
+            {% endfor %}
+        </ul>
+        {% else %}
+        <p>У вас нет доступа к этой странице.</p>
+        {% endif %}
+
+        <a href="/" class="back-link">← Назад</a>
+    </div>
+</div>
+{% endblock %}

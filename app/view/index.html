@@ -1,54 +1,56 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Главная</title>
-</head>
-<body>
-<h2>Здравствуйте, {{ user.email }}</h2>
+{% extends "base.html" %}
 
-<p><strong>Баланс:</strong> <span id="balance">{{ balance }}</span></p>
+{% block title %}Главная{% endblock %}
 
-<form action="/balance" method="get">
-    <button type="submit">Пополнить баланс</button>
-</form>
+{% block body %}
+<div class="container">
+    <h2>Здравствуйте, {{ user.email }}</h2>
 
-{% if user.role == "admin" %}
-<br>
-<a href="/admin">
-    <button>Сервис</button>
-</a>
-{% endif %}
+    <p><strong>Баланс:</strong> <span id="balance">{{ balance }}</span></p>
 
-<hr>
+    <form action="/balance" method="get">
+        <button type="submit">Пополнить баланс</button>
+    </form>
 
-<h3>Загрузить аудио (mp3)</h3>
+    {% if user.role == "admin" %}
+    <br>
+    <a href="/admin">
+        <button>Сервис</button>
+    </a>
+    {% endif %}
 
-<form action="/upload" method="post" enctype="multipart/form-data">
-    <input type="file" name="file" accept=".mp3" required>
-    <br><br>
-    <button type="submit">Транскрибировать</button>
-</form>
+    <hr>
 
-<hr>
+    <h3>Загрузить аудио (mp3)</h3>
 
-<h3>Мои транскрипции</h3>
+    <form action="/upload" method="post" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".mp3" required>
+        <br><br>
+        <button type="submit">Транскрибировать</button>
+    </form>
 
-<ul id="threads-list">
-    {% for t in threads %}
-        <li>
-            <a href="/thread/{{ user.id }}/{{ t.id }}">
-                {{ t.audio_name }} ({{ t.duration }} сек)
-            </a>
-        </li>
-    {% else %}
-        <li>Пока нет транскрипций</li>
-    {% endfor %}
-</ul>
+    <hr>
 
-<br>
-<a href="/login">Выйти</a>
+    <h3>Мои транскрипции</h3>
 
+    <ul id="threads-list">
+        {% for t in threads %}
+            <li>
+                <a href="/thread/{{ user.id }}/{{ t.id }}">
+                    {{ t.audio_name }} ({{ t.duration }} сек)
+                </a>
+            </li>
+        {% else %}
+            <li>Пока нет транскрипций</li>
+        {% endfor %}
+    </ul>
+
+    <br>
+    <a href="/login">Выйти</a>
+</div>
+{% endblock %}
+
+{% block scripts %}
 <script>
     const userId = {{ user.id }};
     const list = document.getElementById("threads-list");
@@ -78,6 +80,8 @@
                 list.appendChild(li);
             });
 
+            refreshBalance();
+
         } catch (e) {
             console.error("Ошибка обновления транскрипций", e);
         }
@@ -85,7 +89,7 @@
 
     async function refreshBalance() {
         try {
-            const response = await fetch(`/api/balance/${userId}`);
+            const response = await fetch(`/api/balance/${userId}?t=${Date.now()}`);
             if (!response.ok) return;
 
             const data = await response.json();
@@ -96,9 +100,9 @@
         }
     }
 
-    setInterval(refreshThreads, 3000);
-    setInterval(refreshBalance, 3000);
-</script>
+    refreshThreads();
+    refreshBalance();
 
-</body>
-</html>
+    setInterval(refreshThreads, 3000);
+</script>
+{% endblock %}

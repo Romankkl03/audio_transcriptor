@@ -1,22 +1,58 @@
-<!DOCTYPE html>
-<html lang="ru">
-<head>
-    <meta charset="UTF-8">
-    <title>Транскрипция</title>
-</head>
-<body>
+{% extends "base.html" %}
 
-<h2>{{ thread.audio_name }}</h2>
-<p><b>Длительность:</b> {{ thread.duration }} сек</p>
+{% block title %}{{ thread.audio_name }}{% endblock %}
 
-<hr>
+{% block styles %}
+<style>
+    .transcription-container {
+        max-width: 800px; 
+        width: 100%;
+        margin: 0 auto;
+        padding: 20px;
+    }
 
-<pre style="white-space: pre-wrap;">
-{{ thread.content }}
-</pre>
+    .transcription-header {
+        margin-bottom: 20px;
+    }
 
-<br>
-<a href="/">← Назад</a>
+    .transcription-content {
+        white-space: pre-wrap;
+        background: #f9f9f9;
+        padding: 15px;
+        border-radius: 5px;
+        border: 1px solid #ddd;
+        font-family: monospace;
+        line-height: 1.6;
+    }
 
-</body>
-</html>
+    .back-link {
+        display: inline-block;
+        margin-top: 20px;
+        text-decoration: none;
+        color: #007BFF;
+    }
+
+    .back-link:hover {
+        text-decoration: underline;
+    }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="container">
+    <div class="transcription-container">
+        <div class="transcription-header">
+            <h2>{{ thread.audio_name }}</h2>
+            <p><b>Длительность:</b> {{ thread.duration }} сек</p>
+        </div>
+
+        <hr>
+
+        <div class="transcription-content">
+            {{ thread.content }}
+        </div>
+
+        <a href="/" class="back-link">← Назад</a>
+    </div>
+</div>
+{% endblock %}
