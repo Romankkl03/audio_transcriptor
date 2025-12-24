@@ -42,3 +42,6 @@ uvicorn==0.38.0 ; python_version >= "3.11"
 python-jose
 Jinja2
 passlib
+pytest
+pytest-asyncio
+httpx

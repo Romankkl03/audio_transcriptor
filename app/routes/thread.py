@@ -7,8 +7,10 @@ from .pydantic_models import Thread_api as thread
 
 thread_rout = APIRouter()
 
+
 @thread_rout.post("/{user_id}/predictions")
-def save_transcription(
+async def save_transcription(
+    user_id: int,  # Измените параметр на `user_id` вместо `data`
     data: thread,
     session: Session = Depends(get_session)
 ):
@@ -17,7 +19,7 @@ def save_transcription(
 
     try:
         cost = int(data.duration) * 10
-        if not repo_balance.has_enough(data.user_id, cost):
+        if not repo_balance.has_enough_credits(data.user_id, cost):
             raise HTTPException(
                 status_code=402,
                 detail="Not enough balance"
