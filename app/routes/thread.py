@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 from src.DataBase.engine import get_session
 from src.Thread.thread import ThreadRepository
@@ -10,7 +10,7 @@ thread_rout = APIRouter()
 
 @thread_rout.post("/{user_id}/predictions")
 async def save_transcription(
-    user_id: int,  # Измените параметр на `user_id` вместо `data`
+    user_id: int,
     data: thread,
     session: Session = Depends(get_session)
 ):
@@ -60,16 +60,19 @@ def get_threads(
 ):
     repo = ThreadRepository(session)
     threads = repo.get_threads_by_user_id(user_id)
-    return [
-        {
-            "id": t.id,
-            "audio_name": t.audio_name,
-            "duration": t.duration,
-            "content": t.content,
-            "created_at": t.created_at
-        }
-        for t in threads
-    ]
+    if len(threads) > 0:
+        return [
+            {
+                "id": t.id,
+                "audio_name": t.audio_name,
+                "duration": t.duration,
+                "content": t.content,
+                "created_at": t.created_at
+            }
+            for t in threads
+        ]
+    else:
+        return "No transcripts yet!"
 
 @thread_rout.get("/{user_id}/{thread_id}")
 def get_current_thread(
