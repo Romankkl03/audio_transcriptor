@@ -3,6 +3,7 @@ from src.DataBase.engine import get_session
 from sqlalchemy.orm import Session
 from .pydantic_models import User_api as User
 from src.Users.user_repo import UserRepository
+from src.auth.hash_password import HashPassword
 from typing import Dict, List
 
 import logging
@@ -47,17 +48,29 @@ def login(data: User,
         logger.warning(f"Login attempt with non-existent email: {data.email}")
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User does not exist")
 
-    if user.password != data.password:
+    hash_password = HashPassword()
+    if hash_password.verify_hash(data.password, user.password) is False:
+    # if user.password != data.password:
         logger.warning(f"Failed login attempt for user: {data.email}")
         raise HTTPException(status_code=status.HTTP_403_FORBIDDEN, detail="Wrong credentials passed")
 
     return {"message": "ok", "user_id": user.id}
 
 
-@user_route.get('/service')
-def get_all_users(session: Session = Depends(get_session)
+@user_route.get('/{user_id}/service')
+def get_all_users(user_id: int,
+                  session: Session = Depends(get_session)
                   ) -> Dict[str, List[Dict[str, int | str]]]:
     repo = UserRepository(session)
+
+    user = repo.get_by_id(user_id)
+
+    if user.role != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="This operation is forbidden."
+        )
+    
     users = repo.get_all_users()
     return users
 

@@ -1,4 +1,6 @@
 from src.DataBase.models import User, Balance, Transaction
+from src.auth.hash_password import HashPassword
+
 from sqlalchemy.orm import Session
 
 
@@ -7,6 +9,8 @@ class UserRepository:
         self.session = session
 
     def create_user(self, email: str, password: str, role: str = "user"):
+        hash_password = HashPassword()
+        password = hash_password.create_hash(password)
         user = User(email=email, password=password, role=role)
         self.session.add(user)
         self.session.commit()

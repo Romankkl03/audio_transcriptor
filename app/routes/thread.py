@@ -1,4 +1,4 @@
-from fastapi import APIRouter, HTTPException, Depends
+from fastapi import APIRouter, HTTPException, Depends, status
 from sqlalchemy.orm import Session
 from src.DataBase.engine import get_session
 from src.Thread.thread import ThreadRepository
@@ -7,8 +7,10 @@ from .pydantic_models import Thread_api as thread
 
 thread_rout = APIRouter()
 
+
 @thread_rout.post("/{user_id}/predictions")
-def save_transcription(
+async def save_transcription(
+    user_id: int,
     data: thread,
     session: Session = Depends(get_session)
 ):
@@ -17,7 +19,7 @@ def save_transcription(
 
     try:
         cost = int(data.duration) * 10
-        if not repo_balance.has_enough(data.user_id, cost):
+        if not repo_balance.has_enough_credits(data.user_id, cost):
             raise HTTPException(
                 status_code=402,
                 detail="Not enough balance"
@@ -58,17 +60,35 @@ def get_threads(
 ):
     repo = ThreadRepository(session)
     threads = repo.get_threads_by_user_id(user_id)
-    return [
-        {
-            "id": t.id,
-            "audio_name": t.audio_name,
-            "duration": t.duration,
-            "content": t.content,
-            "created_at": t.created_at
-        }
-        for t in threads
-    ]
+    if len(threads) > 0:
+        return [
+            {
+                "id": t.id,
+                "audio_name": t.audio_name,
+                "duration": t.duration,
+                "content": t.content,
+                "created_at": t.created_at
+            }
+            for t in threads
+        ]
+    else:
+        return "No transcripts yet!"
 
+@thread_rout.get("/{user_id}/{thread_id}")
+def get_current_thread(
+    user_id: int,
+    thread_id: int,
+    session: Session = Depends(get_session)
+):
+    repo = ThreadRepository(session)
+    threads = repo.get_thread_by_id(thread_id)
+    return {
+            "id": threads.id,
+            "audio_name": threads.audio_name,
+            "duration": threads.duration,
+            "content": threads.content,
+            "created_at": threads.created_at
+        }
 
 @thread_rout.get("/{user_id}/audios")
 def get_all_audio_names(user_id: int,

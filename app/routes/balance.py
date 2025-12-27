@@ -29,8 +29,6 @@ def get_balance(user_id: int,
                 session: Session = Depends(get_session)):
     repo = BalanceRepository(session)
     balance = repo.get_by_user_id(user_id)
-    # If balance does not exist, create one with 0 amount
-    # it will happen when user logs in for the first time
     if not balance:
         repo.create_balance(user_id, 0)
         balance = repo.get_by_user_id(user_id)
