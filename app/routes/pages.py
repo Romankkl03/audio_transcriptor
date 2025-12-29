@@ -138,6 +138,11 @@ def balance_post(
         return RedirectResponse("/login", status_code=302)
 
     balance_repo = BalanceRepository(session)
+    user_balance = balance_repo.get_by_user_id(user.id)
+    if not user_balance:
+        balance_repo.create_balance(user.id, 0)
+        user_balance = balance_repo.get_by_user_id(user.id)
+
     transaction_repo = TransactionRepository(session)
     balance_repo.increase_balance(user.id, amount)
     transaction_repo.create_transaction(

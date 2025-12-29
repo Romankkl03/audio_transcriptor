@@ -2,10 +2,8 @@ import time
 from datetime import datetime
 from fastapi import HTTPException, status 
 from jose import jwt, JWTError
-# from database.database import get_settings
 
-# settings = get_settings()
-# SECRET_KEY = settings.SECRET_KEY
+
 SECRET_KEY = "MY_SECRET_KEY"
 
 def create_access_token(user: str) -> str: 
